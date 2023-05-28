@@ -68,9 +68,24 @@ pane.addInput(PARAMS, "visible",{
 })
 
 const directionalLight = new THREE.DirectionalLight(0x00fffc, 0.3)
-directionalLight.position.set(1, 0.25, 0)
+directionalLight.position.set(5, 2.5, 0.5)
 scene.add(directionalLight)
-directionalLight.visible = false
+directionalLight.visible = true
+directionalLight.castShadow = true
+directionalLight.shadow.mapSize.width = 1024
+directionalLight.shadow.mapSize.height = 1024
+directionalLight.shadow.camera.near = 3
+directionalLight.shadow.camera.far = 11
+directionalLight.shadow.camera.top = 2
+directionalLight.shadow.camera.right = 2
+directionalLight.shadow.camera.bottom = -2
+directionalLight.shadow.camera.left = -2
+directionalLight.shadow.radius = 15
+
+const directionalLightCameraHelper = new THREE.CameraHelper(directionalLight.shadow.camera)
+scene.add(directionalLightCameraHelper)
+directionalLightCameraHelper.visible = false
+
 pane.addInput(directionalLight,"visible",{
     "label": "luz direcional",
 }).on("change",(ev)=>{
@@ -89,7 +104,18 @@ pane.addInput(hemisphereLight,"visible",{
 const pointLight = new THREE.PointLight(0xff9000, 0.5)
 pointLight.position.set(1, 1, 1)
 scene.add(pointLight)
-pointLight.visible = false
+pointLight.visible = true
+pointLight.castShadow = true
+pointLight.shadow.mapSize.width = 1024
+pointLight.shadow.mapSize.height = 1024
+
+pointLight.shadow.camera.near = 0.1
+pointLight.shadow.camera.far = 8
+
+const pointLightCameraHelper = new THREE.CameraHelper(pointLight.shadow.camera)
+scene.add(pointLightCameraHelper)
+pointLightCameraHelper.visible = false
+
 pane.addInput(pointLight,"visible",{
     "label": "luz pontual",
 }).on("change",(ev)=>{
@@ -114,7 +140,18 @@ spotLight.target.position.x = -0.75
 scene.add(spotLight.target)
 scene.add(spotLight)
 
-spotLight.visible = false
+spotLight.visible = true
+spotLight.castShadow = true
+spotLight.shadow.mapSize.width = 1024
+spotLight.shadow.mapSize.height = 1024
+spotLight.shadow.camera.fov = 35
+spotLight.shadow.camera.near = 2
+spotLight.shadow.camera.far = 7
+
+const spotLightCameraHelper = new THREE.CameraHelper(spotLight.shadow.camera)
+scene.add(spotLightCameraHelper)
+spotLightCameraHelper.visible = false
+
 pane.addInput(spotLight,"visible",{
     "label": "luz spot",
 }).on("change",(ev)=>{
@@ -158,17 +195,24 @@ const sphere = new THREE.Mesh(
     material
 )
 sphere.position.x = - 1.5
+sphere.castShadow = true
+sphere.receiveShadow = true
 
 const cube = new THREE.Mesh(
     new THREE.BoxGeometry(0.75, 0.75, 0.75),
     material
 )
 
+cube.castShadow = true
+cube.receiveShadow = true
+
 const torus = new THREE.Mesh(
     new THREE.TorusGeometry(0.3, 0.2, 32, 64),
     material
 )
 torus.position.x = 1.5
+torus.castShadow = true
+torus.receiveShadow = true
 
 const plane = new THREE.Mesh(
     new THREE.PlaneGeometry(10, 10),
@@ -176,6 +220,7 @@ const plane = new THREE.Mesh(
 )
 plane.rotation.x = - Math.PI * 0.5
 plane.position.y = - 0.65
+plane.receiveShadow = true
 
 scene.add(sphere, cube, torus, plane)
 
@@ -225,7 +270,8 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-
+renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFSoftShadowMap
 /**
  * Animate
  */
